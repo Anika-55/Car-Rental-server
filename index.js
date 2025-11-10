@@ -17,8 +17,6 @@ const client = new MongoClient(uri, {
   }
 });
 
-let carsCollection;
-
 async function run() {
   try {
     await client.connect();
@@ -31,19 +29,7 @@ async function run() {
       res.send(result);
     });
 
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // optional: await client.close();
-  }
-}
-run().catch(console.dir);
-
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-// Get a specific car by ID
+    // Get a specific car by ID
 app.get('/cars/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -60,6 +46,20 @@ app.get('/cars/:id', async (req, res) => {
     res.status(500).send({ success: false, message: error.message });
   }
 });
+
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // optional: await client.close();
+  }
+}
+run().catch(console.dir);
+
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
+
 
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
