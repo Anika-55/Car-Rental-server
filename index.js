@@ -104,7 +104,7 @@ async function run() {
       }
     });
 
-    // Create booking and mark car unavailable
+    
     app.post('/bookings', async (req, res) => {
       try {
         const bookingData = req.body;
