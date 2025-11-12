@@ -54,6 +54,28 @@ app.get("/cars/email/:email", async (req, res) => {
     res.status(500).send({ success: false, message: err.message });
   }
 });
+    
+   // ✅ Update car by ID
+app.put("/cars/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updatedData = req.body;
+
+    const result = await carsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updatedData }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).send({ success: false, message: "Car not found" });
+    }
+
+    res.send({ success: true, message: "Car updated successfully" });
+  } catch (err) {
+    res.status(500).send({ success: false, message: err.message });
+  }
+});
+
 
 // POST /cars - accept image URL
 app.post("/cars", async (req, res) => {
@@ -89,6 +111,29 @@ app.post("/cars", async (req, res) => {
         const bookingData = req.body;
         const result = await bookingsCollection.insertOne(bookingData);
         res.send({ success: true, result });
+      } catch (err) {
+        res.status(500).send({ success: false, message: err.message });
+      }
+    });
+
+    // Create a booking and mark car unavailable
+    app.post('/bookings', async (req, res) => {
+      try {
+        const bookingData = req.body;
+        if (!bookingData.carId || !bookingData.userEmail || !bookingData.fromDate || !bookingData.toDate) {
+          return res.status(400).send({ success: false, message: "carId, userEmail, fromDate and toDate are required" });
+        }
+
+        // Insert booking
+        const result = await bookingsCollection.insertOne(bookingData);
+
+        // Update car status to unavailable
+        await carsCollection.updateOne(
+          { _id: new ObjectId(bookingData.carId) },
+          { $set: { isAvailable: false } }
+        );
+
+        res.send({ success: true, result, message: "Car booked successfully!" });
       } catch (err) {
         res.status(500).send({ success: false, message: err.message });
       }
