@@ -43,6 +43,18 @@ async function run() {
         res.status(500).send({ success: false, message: error.message });
       }
     });
+
+    // ✅ Get all cars by provider email
+app.get("/cars/email/:email", async (req, res) => {
+  try {
+    const { email } = req.params;
+    const result = await carsCollection.find({ providerEmail: email }).toArray();
+    res.send({ success: true, result });
+  } catch (err) {
+    res.status(500).send({ success: false, message: err.message });
+  }
+});
+
 // POST /cars - accept image URL
 app.post("/cars", async (req, res) => {
   try {
@@ -56,6 +68,19 @@ app.post("/cars", async (req, res) => {
     res.status(500).send({ success: false, message: err.message });
   }
 });
+     // ✅ Delete car by ID
+    app.delete("/cars/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const result = await carsCollection.deleteOne({ _id: new ObjectId(id) });
+        if (result.deletedCount === 0) {
+          return res.status(404).send({ success: false, message: "Car not found" });
+        }
+        res.send({ success: true });
+      } catch (err) {
+        res.status(500).send({ success: false, message: err.message });
+      }
+    });
 
 
     // --- Bookings Endpoints ---
